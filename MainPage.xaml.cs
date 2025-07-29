@@ -12,19 +12,19 @@ namespace CryptoDCACalculator
     // View Models for the tabs
     public class CoinSummary
     {
-        public string CoinName { get; set; }
-        public string Amount { get; set; }
-        public string ValueEur { get; set; }
+        public string CoinName { get; set; } = string.Empty;
+        public string Amount { get; set; } = string.Empty;
+        public string ValueEur { get; set; } = string.Empty;
     }
 
     public class HistoryItem
     {
-        public string Date { get; set; }
-        public string Coin { get; set; }
-        public string InvestmentInfo { get; set; }
-        public string CryptoAmount { get; set; }
-        public string CurrentValue { get; set; }
-        public string ROI { get; set; }
+        public string Date { get; set; } = string.Empty;
+        public string Coin { get; set; } = string.Empty;
+        public string InvestmentInfo { get; set; } = string.Empty;
+        public string CryptoAmount { get; set; } = string.Empty;
+        public string CurrentValue { get; set; } = string.Empty;
+        public string ROI { get; set; } = string.Empty;
         public Color ROIColor { get; set; }
     }
 
@@ -33,14 +33,15 @@ namespace CryptoDCACalculator
         private readonly DatabaseService _dbService;
         private bool _dbInitialized = false;
         
-        // Tab management
+        // Tab management - Updated for futuristic UI
         private Button _activeTab;
+        private Border _activeTabBorder;
         private StackLayout _activeContent;
 
         public MainPage()
         {
             InitializeComponent();
-            _dbService = Application.Current.Handler.MauiContext.Services.GetService(typeof(DatabaseService)) as DatabaseService;
+            _dbService = Application.Current.Handler?.MauiContext?.Services.GetService(typeof(DatabaseService)) as DatabaseService;
             
             // Initialize crypto list
             var cryptos = new List<string> { "BTC", "ETH", "SOL", "XRP", "ADA", "DOT" };
@@ -48,6 +49,7 @@ namespace CryptoDCACalculator
             
             // Set initial active tab
             _activeTab = OverviewTab;
+            _activeTabBorder = OverviewTabBorder;
             _activeContent = OverviewContent;
         }
 
@@ -59,37 +61,38 @@ namespace CryptoDCACalculator
             _dbInitialized = true;
         }
 
-        #region Tab Management
+        #region Tab Management - Futuristic Style
 
         private void OnOverviewTabClicked(object sender, EventArgs e)
         {
-            SwitchTab(OverviewTab, OverviewContent);
+            SwitchTab(OverviewTab, OverviewTabBorder, OverviewContent);
         }
 
         private void OnCoinsTabClicked(object sender, EventArgs e)
         {
-            SwitchTab(CoinsTab, CoinsContent);
+            SwitchTab(CoinsTab, CoinsTabBorder, CoinsContent);
         }
 
         private void OnHistoryTabClicked(object sender, EventArgs e)
         {
-            SwitchTab(HistoryTab, HistoryContent);
+            SwitchTab(HistoryTab, HistoryTabBorder, HistoryContent);
         }
 
-        private void SwitchTab(Button newTab, StackLayout newContent)
+        private void SwitchTab(Button newTab, Border newTabBorder, StackLayout newContent)
         {
-            // Deactivate current tab
-            _activeTab.BackgroundColor = Colors.Transparent;
-            _activeTab.TextColor = Color.FromArgb("#64748B");
+            // Deactivate current tab - Cyber style
+            _activeTabBorder.BackgroundColor = Colors.Transparent;
+            _activeTab.TextColor = Color.FromArgb("#666666");
             _activeContent.IsVisible = false;
 
-            // Activate new tab
-            newTab.BackgroundColor = Color.FromArgb("#0EA5E9");
+            // Activate new tab - Neon glow effect
+            newTabBorder.BackgroundColor = Color.FromArgb("#7C3AED");
             newTab.TextColor = Colors.White;
             newContent.IsVisible = true;
 
             // Update active references
             _activeTab = newTab;
+            _activeTabBorder = newTabBorder;
             _activeContent = newContent;
         }
 
@@ -98,7 +101,7 @@ namespace CryptoDCACalculator
         private class DcaResultRow
         {
             public DateTime Date { get; set; }
-            public string Coin { get; set; }
+            public string Coin { get; set; } = string.Empty;
             public decimal InvestedAmount { get; set; }
             public decimal CryptoAmount { get; set; }
             public decimal ValueToday { get; set; }
@@ -113,14 +116,14 @@ namespace CryptoDCACalculator
             var selectedCryptos = CryptoListView.SelectedItems?.Cast<string>().ToList() ?? new List<string>();
             if (selectedCryptos.Count == 0)
             {
-                ErrorLabel.Text = "Please select at least one cryptocurrency.";
+                ErrorLabel.Text = "► PLEASE SELECT DIGITAL ASSETS ◄";
                 ErrorLabel.IsVisible = true;
                 return;
             }
 
             if (!decimal.TryParse(AmountEntry.Text, out decimal monthlyAmount) || monthlyAmount <= 0)
             {
-                ErrorLabel.Text = "Please enter a valid monthly amount.";
+                ErrorLabel.Text = "► INVALID CAPITAL INJECTION AMOUNT ◄";
                 ErrorLabel.IsVisible = true;
                 return;
             }
@@ -136,7 +139,7 @@ namespace CryptoDCACalculator
                                   .ToList();
             if (dayList.Count == 0)
             {
-                ErrorLabel.Text = "Please enter at least one valid recurring day (1-31).";
+                ErrorLabel.Text = "► INVALID EXECUTION DAYS PROTOCOL ◄";
                 ErrorLabel.IsVisible = true;
                 return;
             }
@@ -236,10 +239,19 @@ namespace CryptoDCACalculator
             var totalPortfolioEur = totalCurrentValue * UsdToEur;
             var overallRoi = totalInvested > 0 ? ((totalCurrentValue - totalInvested) / totalInvested) * 100 : 0;
 
-            // Update portfolio summary
+            // Update portfolio summary - Futuristic style
             PortfolioValueLabel.Text = $"€{totalPortfolioEur:F2}";
             PortfolioROILabel.Text = $"{overallRoi:F2}%";
-            PortfolioROILabel.TextColor = overallRoi >= 0 ? Color.FromArgb("#22C55E") : Color.FromArgb("#EF4444");
+            
+            // Color coding for ROI - Cyber theme
+            if (overallRoi >= 0)
+            {
+                PortfolioROILabel.TextColor = Color.FromArgb("#00D4FF"); // Cyan for positive
+            }
+            else
+            {
+                PortfolioROILabel.TextColor = Color.FromArgb("#FF6B6B"); // Red for negative
+            }
 
             TotalInvestedLabel.Text = $"${totalInvested:F0}";
             CurrentValueLabel.Text = $"${totalCurrentValue:F2}";
@@ -252,7 +264,7 @@ namespace CryptoDCACalculator
             var coinSummaries = results.GroupBy(r => r.Coin)
                 .Select(g => new CoinSummary
                 {
-                    CoinName = $"🔸 {g.Key}",
+                    CoinName = $"◊ {g.Key}",
                     Amount = $"{g.Sum(r => r.CryptoAmount):F6} {g.Key}",
                     ValueEur = $"€{(g.Sum(r => r.ValueToday) * UsdToEur):F2}"
                 })
@@ -267,12 +279,12 @@ namespace CryptoDCACalculator
                 .Select(r => new HistoryItem
                 {
                     Date = r.Date.ToString("MMM yyyy"),
-                    Coin = $"🔸 {r.Coin}",
-                    InvestmentInfo = $"Invested: ${r.InvestedAmount:F0}",
+                    Coin = $"◊ {r.Coin}",
+                    InvestmentInfo = $"Capital: ${r.InvestedAmount:F0}",
                     CryptoAmount = $"{r.CryptoAmount:F6} {r.Coin}",
                     CurrentValue = $"${r.ValueToday:F2}",
                     ROI = $"{(r.ROI * 100):F2}%",
-                    ROIColor = r.ROI >= 0 ? Color.FromArgb("#22C55E") : Color.FromArgb("#EF4444")
+                    ROIColor = r.ROI >= 0 ? Color.FromArgb("#00D4FF") : Color.FromArgb("#FF6B6B")
                 })
                 .ToList();
 

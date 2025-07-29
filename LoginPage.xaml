@@ -1,13 +1,142 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<ContentPage x:Class="CryptoDCACalculator.LoginPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="CryptoDCACalculator.LoginPage"
-             Title="Login">
-    <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
-        <Label Text="Crypto DCA Calculator" FontSize="32" HorizontalOptions="Center" />
-        <Entry x:Name="UsernameEntry" Placeholder="Username" />
-        <Entry x:Name="PasswordEntry" Placeholder="Password" IsPassword="True" />
-        <Button Text="Login" Clicked="OnLoginClicked" />
-        <Label x:Name="LoginErrorLabel" TextColor="Red" IsVisible="False" />
-    </VerticalStackLayout>
-</ContentPage> 
+             Title="Crypto Access Terminal"
+             BackgroundColor="#0A0A0F">
+
+    <ScrollView>
+        <StackLayout Padding="30" Spacing="30" VerticalOptions="Center">
+            
+            <!-- Header with Crypto Branding - Same as MainPage -->
+            <StackLayout Margin="0,40,0,0">
+                <Label Text="⚡ CRYPTO DCA MATRIX ⚡" 
+                       FontSize="28" FontAttributes="Bold" 
+                       TextColor="#00D4FF" HorizontalOptions="Center"
+                       Margin="0,10,0,5"/>
+                <Label Text="ACCESS TERMINAL PROTOCOL" 
+                       FontSize="14" FontAttributes="Italic" 
+                       TextColor="#7C3AED" HorizontalOptions="Center"
+                       Margin="0,0,0,15"/>
+                <Label Text="🔐 SECURE AUTHENTICATION REQUIRED 🔐" 
+                       FontSize="12" FontAttributes="Bold" 
+                       TextColor="#00D4FF" HorizontalOptions="Center"
+                       Margin="0,20,0,0"/>
+            </StackLayout>
+            
+            <!-- Login Panel - Futuristic Style -->
+            <Border BackgroundColor="#1A1A2E" 
+                    Stroke="#00D4FF" StrokeThickness="2"
+                    StrokeShape="RoundRectangle 20" Padding="35">
+                <Border.Shadow>
+                    <Shadow Brush="#00D4FF" Opacity="0.4" Radius="25" Offset="0,0"/>
+                </Border.Shadow>
+                <StackLayout Spacing="25">
+                    
+                    <!-- Section Header -->
+                    <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+                        <Label Text="🎯" FontSize="20"/>
+                        <Label Text="AUTHENTICATION MATRIX" 
+                               FontSize="18" FontAttributes="Bold" 
+                               TextColor="#00D4FF" VerticalOptions="Center" Margin="10,0"/>
+                        <Label Text="🎯" FontSize="20"/>
+                    </StackLayout>
+                    
+                    <!-- Username Field -->
+                    <StackLayout>
+                        <Label Text="👤 USER IDENTIFICATION" FontSize="14" 
+                               TextColor="#00D4FF" FontAttributes="Bold" Margin="0,0,0,8"/>
+                        <Border BackgroundColor="#0A0A0F" 
+                                Stroke="#7C3AED" StrokeThickness="2"
+                                StrokeShape="RoundRectangle 12" Padding="5">
+                            <Border.Shadow>
+                                <Shadow Brush="#7C3AED" Opacity="0.3" Radius="10" Offset="0,0"/>
+                            </Border.Shadow>
+                            <Entry x:Name="UsernameEntry" 
+                                   Placeholder="Enter Neural ID..." 
+                                   BackgroundColor="Transparent" 
+                                   TextColor="#FFFFFF" 
+                                   PlaceholderColor="#666666" 
+                                   FontSize="16"
+                                   HeightRequest="50"/>
+                        </Border>
+                    </StackLayout>
+
+                    <!-- Password Field -->
+                    <StackLayout>
+                        <Label Text="🔒 SECURITY KEY" FontSize="14" 
+                               TextColor="#00D4FF" FontAttributes="Bold" Margin="0,0,0,8"/>
+                        <Border BackgroundColor="#0A0A0F" 
+                                Stroke="#7C3AED" StrokeThickness="2"
+                                StrokeShape="RoundRectangle 12" Padding="5">
+                            <Border.Shadow>
+                                <Shadow Brush="#7C3AED" Opacity="0.3" Radius="10" Offset="0,0"/>
+                            </Border.Shadow>
+                            <Entry x:Name="PasswordEntry" 
+                                   Placeholder="Enter Access Code..." 
+                                   IsPassword="True"
+                                   BackgroundColor="Transparent" 
+                                   TextColor="#FFFFFF" 
+                                   PlaceholderColor="#666666" 
+                                   FontSize="16"
+                                   HeightRequest="50"/>
+                        </Border>
+                    </StackLayout>
+
+                    <!-- Login Button - Cyberpunk Style (Same as MainPage) -->
+                    <Border BackgroundColor="#7C3AED" 
+                            Stroke="#00D4FF" StrokeThickness="3"
+                            StrokeShape="RoundRectangle 15" Margin="0,20,0,0">
+                        <Border.Shadow>
+                            <Shadow Brush="#7C3AED" Opacity="0.6" Radius="25" Offset="0,0"/>
+                        </Border.Shadow>
+                        <Button x:Name="LoginButton" 
+                                Text="⚡ INITIATE ACCESS PROTOCOL ⚡" 
+                                BackgroundColor="Transparent" 
+                                TextColor="#FFFFFF" 
+                                FontSize="16" FontAttributes="Bold"
+                                HeightRequest="60"
+                                Clicked="OnLoginClicked"/>
+                    </Border>
+                    
+                    <!-- Error Label - Cyber Style -->
+                    <Border x:Name="ErrorBorder" 
+                            BackgroundColor="#2D1B1B" 
+                            Stroke="#FF6B6B" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 10" 
+                            IsVisible="False" Padding="15">
+                        <Border.Shadow>
+                            <Shadow Brush="#FF6B6B" Opacity="0.3" Radius="10" Offset="0,0"/>
+                        </Border.Shadow>
+                        <Label x:Name="LoginErrorLabel" 
+                               Text="► ACCESS DENIED ◄"
+                               TextColor="#FF6B6B" 
+                               FontSize="14" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                    </Border>
+                </StackLayout>
+            </Border>
+
+            <!-- Security Notice - Matrix Style -->
+            <Border BackgroundColor="#16213E" 
+                    Stroke="#7C3AED" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12" 
+                    Padding="20" Margin="0,20,0,40">
+                <Border.Shadow>
+                    <Shadow Brush="#7C3AED" Opacity="0.2" Radius="15" Offset="0,0"/>
+                </Border.Shadow>
+                <StackLayout>
+                    <Label Text="🛡️ SECURITY PROTOCOL ACTIVE 🛡️" 
+                           FontSize="12" FontAttributes="Bold" 
+                           TextColor="#7C3AED" HorizontalOptions="Center"
+                           Margin="0,0,0,8"/>
+                    <Label Text="This terminal is secured with quantum encryption. Unauthorized access attempts will be logged and traced through the neural network." 
+                           FontSize="10" FontAttributes="Italic" 
+                           TextColor="#666666" HorizontalOptions="Center"/>
+                </StackLayout>
+            </Border>
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
