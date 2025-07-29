@@ -1,63 +1,228 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<ContentPage x:Class="CryptoDCACalculator.MainPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="CryptoDCACalculator.MainPage"
-             Title="Crypto DCA Calculator">
+             Title="Crypto DCA Calculator"
+             BackgroundColor="#F8FAFC">
+
     <ScrollView>
-        <VerticalStackLayout Padding="30,0" Spacing="25">
-            <Label Text="Crypto DCA Calculator" FontSize="28" HorizontalOptions="Center" />
+        <StackLayout Padding="20" Spacing="20">
+            
+            <!-- Input Section -->
+            <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="20">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.1" Radius="10" Offset="0,2"/>
+                </Border.Shadow>
+                <StackLayout Spacing="15">
+                    <Label Text="📊 DCA Calculator Setup" 
+                           FontSize="20" FontAttributes="Bold" 
+                           TextColor="#1E293B"/>
+                    
+                    <!-- Crypto Selection -->
+                    <StackLayout>
+                        <Label Text="Select Cryptocurrencies:" FontSize="16" TextColor="#475569"/>
+                        <CollectionView x:Name="CryptoListView" SelectionMode="Multiple" HeightRequest="120">
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout Orientation="Vertical" Span="2"/>
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BackgroundColor="#F1F5F9" StrokeShape="RoundRectangle 8" Padding="10" Margin="5">
+                                        <Label Text="{Binding}" FontSize="14" HorizontalOptions="Center"/>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
 
-            <Label Text="Select Cryptocurrencies:" />
-            <CollectionView x:Name="CryptoListView" SelectionMode="Multiple" HeightRequest="100">
-                <CollectionView.ItemsSource>
-                    <x:Array Type="{x:Type x:String}">
-                        <x:String>BTC</x:String>
-                        <x:String>ETH</x:String>
-                        <x:String>SOL</x:String>
-                        <x:String>XRP</x:String>
-                    </x:Array>
-                </CollectionView.ItemsSource>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <StackLayout Orientation="Horizontal" Padding="5">
-                            <Label Text="{Binding .}" FontSize="18" />
+                    <!-- Amount and Date -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <StackLayout Grid.Column="0">
+                            <Label Text="Monthly Amount ($):" FontSize="14" TextColor="#475569"/>
+                            <Entry x:Name="AmountEntry" Placeholder="100" Keyboard="Numeric" 
+                                   BackgroundColor="#F8FAFC" FontSize="16"/>
                         </StackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                        <StackLayout Grid.Column="1">
+                            <Label Text="Start Date:" FontSize="14" TextColor="#475569"/>
+                            <DatePicker x:Name="StartDatePicker" BackgroundColor="#F8FAFC"/>
+                        </StackLayout>
+                    </Grid>
 
+                    <!-- Recurring Days -->
+                    <StackLayout>
+                        <Label Text="Recurring Days (1-31):" FontSize="14" TextColor="#475569"/>
+                        <Entry x:Name="DaysEntry" Placeholder="1,15" 
+                               BackgroundColor="#F8FAFC" FontSize="16"/>
+                    </StackLayout>
 
-            <Label Text="Start Date:" />
-            <DatePicker x:Name="StartDatePicker" />
+                    <!-- Calculate Button -->
+                    <Button x:Name="CalculateButton" Text="🚀 Calculate DCA" 
+                            BackgroundColor="#0EA5E9" TextColor="White" 
+                            CornerRadius="8" FontSize="16" FontAttributes="Bold"
+                            Clicked="OnCalculateClicked"/>
+                    
+                    <!-- Error Label -->
+                    <Label x:Name="ErrorLabel" TextColor="#EF4444" FontSize="14" 
+                           IsVisible="False" HorizontalOptions="Center"/>
+                </StackLayout>
+            </Border>
 
-            <Label Text="Monthly Investment Amount (USD):" />
-            <Entry x:Name="AmountEntry" Keyboard="Numeric" Placeholder="e.g. 100" />
-
-            <Label Text="Recurring Days of Month (comma separated, e.g. 1,15,28):" />
-            <Entry x:Name="DaysEntry" Placeholder="e.g. 15,20,25" />
-
-            <Button Text="Calculate" Clicked="OnCalculateClicked" />
-
-            <Label x:Name="ErrorLabel" TextColor="Red" IsVisible="False" />
-
-            <!-- Results Table Placeholder -->
-            <CollectionView x:Name="ResultsTable" IsVisible="False">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Padding="5" ColumnDefinitions="*,*,*,*,*,*">
-                            <Label Text="{Binding Date}" Grid.Column="0"
-                                FontAttributes="{Binding Date, Converter={StaticResource TotalRowFontConverter}}" />
-                            <Label Text="{Binding Coin}" Grid.Column="1"
-                                FontAttributes="{Binding Coin, Converter={StaticResource TotalRowFontConverter}}" />
-                            <Label Text="{Binding InvestedAmount}" Grid.Column="2" />
-                            <Label Text="{Binding CryptoAmount}" Grid.Column="3" />
-                            <Label Text="{Binding ValueToday}" Grid.Column="4" />
-                            <Label Text="{Binding ROI}" Grid.Column="5" />
+            <!-- Results Section with Tabs -->
+            <Border x:Name="ResultsFrame" BackgroundColor="White" StrokeShape="RoundRectangle 12" 
+                    IsVisible="False">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.1" Radius="10" Offset="0,2"/>
+                </Border.Shadow>
+                <StackLayout>
+                    
+                    <!-- Tab Headers -->
+                    <Border BackgroundColor="#F1F5F9" StrokeShape="RoundRectangle 8" Margin="10">
+                        <Grid x:Name="TabHeaders" ColumnDefinitions="*,*,*">
+                            <Button x:Name="OverviewTab" Grid.Column="0" Text="📊 Overview" 
+                                    BackgroundColor="#0EA5E9" TextColor="White" 
+                                    CornerRadius="8" FontSize="14" FontAttributes="Bold"
+                                    Clicked="OnOverviewTabClicked"/>
+                            
+                            <Button x:Name="CoinsTab" Grid.Column="1" Text="💰 Coins" 
+                                    BackgroundColor="Transparent" TextColor="#64748B" 
+                                    CornerRadius="8" FontSize="14"
+                                    Clicked="OnCoinsTabClicked"/>
+                            
+                            <Button x:Name="HistoryTab" Grid.Column="2" Text="📅 History" 
+                                    BackgroundColor="Transparent" TextColor="#64748B" 
+                                    CornerRadius="8" FontSize="14"
+                                    Clicked="OnHistoryTabClicked"/>
                         </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                    </Border>
 
-        </VerticalStackLayout>
+                    <!-- Tab Content -->
+                    <StackLayout x:Name="TabContent" Padding="20">
+                        
+                        <!-- Overview Tab Content -->
+                        <StackLayout x:Name="OverviewContent" IsVisible="True">
+                            <Label Text="📈 Portfolio Overview" FontSize="18" FontAttributes="Bold" 
+                                   TextColor="#1E293B" Margin="0,0,0,15"/>
+                            
+                            <!-- Portfolio Summary Cards -->
+                            <Border x:Name="PortfolioSummaryCard" BackgroundColor="#0F172A" 
+                                    StrokeShape="RoundRectangle 12" Padding="20" Margin="0,0,0,15">
+                                <StackLayout>
+                                    <Label x:Name="PortfolioValueLabel" Text="€0.00" 
+                                           FontSize="28" FontAttributes="Bold" 
+                                           TextColor="White" HorizontalOptions="Center"/>
+                                    <Label Text="Total Portfolio Value" FontSize="14" 
+                                           TextColor="#94A3B8" HorizontalOptions="Center"/>
+                                    <Label x:Name="PortfolioROILabel" Text="0.00%" 
+                                           FontSize="16" FontAttributes="Bold" 
+                                           HorizontalOptions="Center" Margin="0,10,0,0"/>
+                                </StackLayout>
+                            </Border>
+
+                            <!-- Investment Summary -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <Border Grid.Column="0" BackgroundColor="#EFF6FF" StrokeShape="RoundRectangle 8" Padding="15">
+                                    <StackLayout>
+                                        <Label x:Name="TotalInvestedLabel" Text="$0" 
+                                               FontSize="20" FontAttributes="Bold" 
+                                               TextColor="#1E40AF" HorizontalOptions="Center"/>
+                                        <Label Text="Total Invested" FontSize="12" 
+                                               TextColor="#3B82F6" HorizontalOptions="Center"/>
+                                    </StackLayout>
+                                </Border>
+                                <Border Grid.Column="1" BackgroundColor="#F0FDF4" StrokeShape="RoundRectangle 8" Padding="15">
+                                    <StackLayout>
+                                        <Label x:Name="CurrentValueLabel" Text="$0" 
+                                               FontSize="20" FontAttributes="Bold" 
+                                               TextColor="#166534" HorizontalOptions="Center"/>
+                                        <Label Text="Current Value" FontSize="12" 
+                                               TextColor="#22C55E" HorizontalOptions="Center"/>
+                                    </StackLayout>
+                                </Border>
+                            </Grid>
+                        </StackLayout>
+
+                        <!-- Coins Tab Content -->
+                        <StackLayout x:Name="CoinsContent" IsVisible="False">
+                            <Label Text="💰 Per Cryptocurrency" FontSize="18" FontAttributes="Bold" 
+                                   TextColor="#1E293B" Margin="0,0,0,15"/>
+                            <CollectionView x:Name="CoinsCollectionView">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" 
+                                                Margin="0,0,0,10" Padding="15">
+                                            <Border.Shadow>
+                                                <Shadow Brush="Black" Opacity="0.05" Radius="5" Offset="0,1"/>
+                                            </Border.Shadow>
+                                            <StackLayout>
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <StackLayout Grid.Column="0">
+                                                        <Label Text="{Binding CoinName}" 
+                                                               FontSize="16" FontAttributes="Bold" 
+                                                               TextColor="#1E293B"/>
+                                                        <Label Text="{Binding Amount}" 
+                                                               FontSize="14" TextColor="#64748B"/>
+                                                    </StackLayout>
+                                                    <StackLayout Grid.Column="1" HorizontalOptions="End">
+                                                        <Label Text="{Binding ValueEur}" 
+                                                               FontSize="16" FontAttributes="Bold" 
+                                                               TextColor="#059669" HorizontalOptions="End"/>
+                                                        <Label Text="EUR" FontSize="12" 
+                                                               TextColor="#64748B" HorizontalOptions="End"/>
+                                                    </StackLayout>
+                                                </Grid>
+                                            </StackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </StackLayout>
+
+                        <!-- History Tab Content -->
+                        <StackLayout x:Name="HistoryContent" IsVisible="False">
+                            <Label Text="📅 Monthly History" FontSize="18" FontAttributes="Bold" 
+                                   TextColor="#1E293B" Margin="0,0,0,15"/>
+                            <CollectionView x:Name="HistoryCollectionView">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" 
+                                                Margin="0,0,0,8" Padding="15">
+                                            <Border.Shadow>
+                                                <Shadow Brush="Black" Opacity="0.05" Radius="5" Offset="0,1"/>
+                                            </Border.Shadow>
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <StackLayout Grid.Column="0">
+                                                    <Label Text="{Binding Date}" 
+                                                           FontSize="12" FontAttributes="Bold" 
+                                                           TextColor="#475569"/>
+                                                    <Label Text="{Binding Coin}" 
+                                                           FontSize="16" FontAttributes="Bold" 
+                                                           TextColor="#1E293B"/>
+                                                </StackLayout>
+                                                <StackLayout Grid.Column="1" Margin="15,0">
+                                                    <Label Text="{Binding InvestmentInfo}" 
+                                                           FontSize="12" TextColor="#64748B"/>
+                                                    <Label Text="{Binding CryptoAmount}" 
+                                                           FontSize="12" TextColor="#64748B"/>
+                                                </StackLayout>
+                                                <StackLayout Grid.Column="2" HorizontalOptions="End">
+                                                    <Label Text="{Binding CurrentValue}" 
+                                                           FontSize="14" FontAttributes="Bold" 
+                                                           TextColor="#059669"/>
+                                                    <Label Text="{Binding ROI}" 
+                                                           FontSize="12" FontAttributes="Bold" 
+                                                           TextColor="{Binding ROIColor}"/>
+                                                </StackLayout>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </StackLayout>
+
+                    </StackLayout>
+                </StackLayout>
+            </Border>
+
+        </StackLayout>
     </ScrollView>
 </ContentPage>

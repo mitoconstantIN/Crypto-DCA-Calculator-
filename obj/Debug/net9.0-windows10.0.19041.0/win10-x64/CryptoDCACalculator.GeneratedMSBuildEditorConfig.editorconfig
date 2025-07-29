@@ -8,7 +8,7 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = CryptoDCACalculator
-build_property.ProjectDir = C:\Users\cmito\Desktop\CryptoDCACalculator\
+build_property.ProjectDir = C:\Users\cmito\Desktop\CryptoDCACalculator\Crypto-DCA-Calculator-\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTAotOptimizerEnabled = true
@@ -22,37 +22,37 @@ build_property.CsWinRTUseWindowsUIXamlProjections = false
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/cmito/Desktop/CryptoDCACalculator/App.xaml]
+[C:/Users/cmito/Desktop/CryptoDCACalculator/Crypto-DCA-Calculator-/App.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = CryptoDCACalculator.App.xaml
 build_metadata.AdditionalFiles.TargetPath = App.xaml
 build_metadata.AdditionalFiles.RelativePath = App.xaml
 
-[C:/Users/cmito/Desktop/CryptoDCACalculator/AppShell.xaml]
+[C:/Users/cmito/Desktop/CryptoDCACalculator/Crypto-DCA-Calculator-/AppShell.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = CryptoDCACalculator.AppShell.xaml
 build_metadata.AdditionalFiles.TargetPath = AppShell.xaml
 build_metadata.AdditionalFiles.RelativePath = AppShell.xaml
 
-[C:/Users/cmito/Desktop/CryptoDCACalculator/LoginPage.xaml]
+[C:/Users/cmito/Desktop/CryptoDCACalculator/Crypto-DCA-Calculator-/LoginPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = CryptoDCACalculator.LoginPage.xaml
 build_metadata.AdditionalFiles.TargetPath = LoginPage.xaml
 build_metadata.AdditionalFiles.RelativePath = LoginPage.xaml
 
-[C:/Users/cmito/Desktop/CryptoDCACalculator/MainPage.xaml]
+[C:/Users/cmito/Desktop/CryptoDCACalculator/Crypto-DCA-Calculator-/MainPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = CryptoDCACalculator.MainPage.xaml
 build_metadata.AdditionalFiles.TargetPath = MainPage.xaml
 build_metadata.AdditionalFiles.RelativePath = MainPage.xaml
 
-[C:/Users/cmito/Desktop/CryptoDCACalculator/Resources/Styles/Colors.xaml]
+[C:/Users/cmito/Desktop/CryptoDCACalculator/Crypto-DCA-Calculator-/Resources/Styles/Colors.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = CryptoDCACalculator.Resources.Styles.Colors.xaml
 build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Colors.xaml
 build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Colors.xaml
 
-[C:/Users/cmito/Desktop/CryptoDCACalculator/Resources/Styles/Styles.xaml]
+[C:/Users/cmito/Desktop/CryptoDCACalculator/Crypto-DCA-Calculator-/Resources/Styles/Styles.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = CryptoDCACalculator.Resources.Styles.Styles.xaml
 build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Styles.xaml

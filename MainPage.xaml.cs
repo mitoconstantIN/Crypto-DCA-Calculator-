@@ -9,15 +9,46 @@ using CryptoDCACalculator.Services;
 
 namespace CryptoDCACalculator
 {
+    // View Models for the tabs
+    public class CoinSummary
+    {
+        public string CoinName { get; set; }
+        public string Amount { get; set; }
+        public string ValueEur { get; set; }
+    }
+
+    public class HistoryItem
+    {
+        public string Date { get; set; }
+        public string Coin { get; set; }
+        public string InvestmentInfo { get; set; }
+        public string CryptoAmount { get; set; }
+        public string CurrentValue { get; set; }
+        public string ROI { get; set; }
+        public Color ROIColor { get; set; }
+    }
+
     public partial class MainPage : ContentPage
     {
         private readonly DatabaseService _dbService;
         private bool _dbInitialized = false;
+        
+        // Tab management
+        private Button _activeTab;
+        private StackLayout _activeContent;
 
         public MainPage()
         {
             InitializeComponent();
             _dbService = Application.Current.Handler.MauiContext.Services.GetService(typeof(DatabaseService)) as DatabaseService;
+            
+            // Initialize crypto list
+            var cryptos = new List<string> { "BTC", "ETH", "SOL", "XRP", "ADA", "DOT" };
+            CryptoListView.ItemsSource = cryptos;
+            
+            // Set initial active tab
+            _activeTab = OverviewTab;
+            _activeContent = OverviewContent;
         }
 
         private async Task EnsureDbInitializedAsync()
@@ -28,6 +59,42 @@ namespace CryptoDCACalculator
             _dbInitialized = true;
         }
 
+        #region Tab Management
+
+        private void OnOverviewTabClicked(object sender, EventArgs e)
+        {
+            SwitchTab(OverviewTab, OverviewContent);
+        }
+
+        private void OnCoinsTabClicked(object sender, EventArgs e)
+        {
+            SwitchTab(CoinsTab, CoinsContent);
+        }
+
+        private void OnHistoryTabClicked(object sender, EventArgs e)
+        {
+            SwitchTab(HistoryTab, HistoryContent);
+        }
+
+        private void SwitchTab(Button newTab, StackLayout newContent)
+        {
+            // Deactivate current tab
+            _activeTab.BackgroundColor = Colors.Transparent;
+            _activeTab.TextColor = Color.FromArgb("#64748B");
+            _activeContent.IsVisible = false;
+
+            // Activate new tab
+            newTab.BackgroundColor = Color.FromArgb("#0EA5E9");
+            newTab.TextColor = Colors.White;
+            newContent.IsVisible = true;
+
+            // Update active references
+            _activeTab = newTab;
+            _activeContent = newContent;
+        }
+
+        #endregion
+
         private class DcaResultRow
         {
             public DateTime Date { get; set; }
@@ -36,36 +103,6 @@ namespace CryptoDCACalculator
             public decimal CryptoAmount { get; set; }
             public decimal ValueToday { get; set; }
             public decimal ROI { get; set; }
-        }
-
-        // Mock price data: date -> coin -> price
-        private Dictionary<string, Dictionary<DateTime, decimal>> GetMockPriceHistory(List<string> coins, DateTime start, DateTime end)
-        {
-            var dict = new Dictionary<string, Dictionary<DateTime, decimal>>();
-            var rand = new Random(42);
-            foreach (var coin in coins)
-            {
-                var prices = new Dictionary<DateTime, decimal>();
-                decimal basePrice = coin switch { "BTC" => 30000, "ETH" => 2000, "SOL" => 50, "XRP" => 0.5m, _ => 100 };
-                for (var dt = start.Date; dt <= end.Date; dt = dt.AddDays(1))
-                {
-                    // Simulate price with some random walk
-                    basePrice *= (decimal)(1 + (rand.NextDouble() - 0.5) * 0.01);
-                    prices[dt] = Math.Round(basePrice, 2);
-                }
-                dict[coin] = prices;
-            }
-            return dict;
-        }
-
-        private class TableRow
-        {
-            public string Date { get; set; }
-            public string Coin { get; set; }
-            public string InvestedUsd { get; set; }
-            public string CryptoAmount { get; set; }
-            public string ValueTodayUsdEur { get; set; }
-            public string RoiCurrency { get; set; }
         }
 
         private async void OnCalculateClicked(object sender, EventArgs e)
@@ -110,6 +147,7 @@ namespace CryptoDCACalculator
             var monthlyResults = new List<DcaResultRow>();
             var rand = new Random(42);
 
+            // Calculate DCA results
             foreach (var coin in selectedCryptos)
             {
                 decimal basePrice = coin switch { "BTC" => 30000, "ETH" => 2000, "SOL" => 50, "XRP" => 0.5m, _ => 100 };
@@ -180,75 +218,65 @@ namespace CryptoDCACalculator
                 }
             }
 
-            // Convert to final table format
+            // Update UI with results
+            UpdateOverviewTab(monthlyResults);
+            UpdateCoinsTab(monthlyResults);
+            UpdateHistoryTab(monthlyResults);
+
+            // Show results
+            ResultsFrame.IsVisible = true;
+        }
+
+        private void UpdateOverviewTab(List<DcaResultRow> results)
+        {
             const decimal UsdToEur = 0.92m;
-            var finalResults = new List<TableRow>();
-
-            // 1. Add TOTAL rows for each coin (in EUR)
-            var coinGroups = monthlyResults.GroupBy(r => r.Coin);
-            decimal totalPortfolioEur = 0;
-            foreach (var group in coinGroups)
-            {
-                var coin = group.Key;
-                var totalCrypto = group.Sum(r => r.CryptoAmount);
-                var totalUsd = group.Sum(r => r.ValueToday);
-                var totalEur = Math.Round(totalUsd * UsdToEur, 2);
-                totalPortfolioEur += totalEur;
-
-                finalResults.Add(new TableRow
-                {
-                    Date = "TOTAL",
-                    Coin = coin,
-                    InvestedUsd = "0",
-                    CryptoAmount = totalCrypto.ToString("F7"),
-                    ValueTodayUsdEur = totalEur.ToString("F2"),
-                    RoiCurrency = "EUR"
-                });
-            }
-
-            // 2. Add PORTFOLIO total row
-            finalResults.Add(new TableRow
-            {
-                Date = "TOTAL",
-                Coin = "PORTFOLIO",
-                InvestedUsd = "0",
-                CryptoAmount = "0.0",
-                ValueTodayUsdEur = totalPortfolioEur.ToString("F2"),
-                RoiCurrency = "EUR"
-            });
-
-            // 3. Add overall TOTAL row (total invested vs total current value)
-            var totalInvested = monthlyResults.Sum(r => r.InvestedAmount);
-            var totalCurrentValue = monthlyResults.Sum(r => r.ValueToday);
+            
+            var totalInvested = results.Sum(r => r.InvestedAmount);
+            var totalCurrentValue = results.Sum(r => r.ValueToday);
+            var totalPortfolioEur = totalCurrentValue * UsdToEur;
             var overallRoi = totalInvested > 0 ? ((totalCurrentValue - totalInvested) / totalInvested) * 100 : 0;
 
-            finalResults.Add(new TableRow
-            {
-                Date = "TOTAL",
-                Coin = "TOTAL",
-                InvestedUsd = ((int)totalInvested).ToString(),
-                CryptoAmount = "0.0",
-                ValueTodayUsdEur = totalCurrentValue.ToString("F2"),
-                RoiCurrency = overallRoi.ToString("F2") + "%"
-            });
+            // Update portfolio summary
+            PortfolioValueLabel.Text = $"€{totalPortfolioEur:F2}";
+            PortfolioROILabel.Text = $"{overallRoi:F2}%";
+            PortfolioROILabel.TextColor = overallRoi >= 0 ? Color.FromArgb("#22C55E") : Color.FromArgb("#EF4444");
 
-            // 4. Add monthly data rows
-            foreach (var result in monthlyResults.OrderBy(r => r.Date))
-            {
-                var roi = result.ROI * 100;
-                finalResults.Add(new TableRow
+            TotalInvestedLabel.Text = $"${totalInvested:F0}";
+            CurrentValueLabel.Text = $"${totalCurrentValue:F2}";
+        }
+
+        private void UpdateCoinsTab(List<DcaResultRow> results)
+        {
+            const decimal UsdToEur = 0.92m;
+            
+            var coinSummaries = results.GroupBy(r => r.Coin)
+                .Select(g => new CoinSummary
                 {
-                    Date = result.Date.ToString("MM/yyyy"),
-                    Coin = result.Coin,
-                    InvestedUsd = ((int)result.InvestedAmount).ToString(),
-                    CryptoAmount = result.CryptoAmount.ToString("F4"),
-                    ValueTodayUsdEur = result.ValueToday.ToString("F2"),
-                    RoiCurrency = roi.ToString("F2") + "%"
-                });
-            }
+                    CoinName = $"🔸 {g.Key}",
+                    Amount = $"{g.Sum(r => r.CryptoAmount):F6} {g.Key}",
+                    ValueEur = $"€{(g.Sum(r => r.ValueToday) * UsdToEur):F2}"
+                })
+                .ToList();
 
-            ResultsTable.ItemsSource = finalResults;
-            ResultsTable.IsVisible = true;
+            CoinsCollectionView.ItemsSource = coinSummaries;
+        }
+
+        private void UpdateHistoryTab(List<DcaResultRow> results)
+        {
+            var historyItems = results.OrderByDescending(r => r.Date)
+                .Select(r => new HistoryItem
+                {
+                    Date = r.Date.ToString("MMM yyyy"),
+                    Coin = $"🔸 {r.Coin}",
+                    InvestmentInfo = $"Invested: ${r.InvestedAmount:F0}",
+                    CryptoAmount = $"{r.CryptoAmount:F6} {r.Coin}",
+                    CurrentValue = $"${r.ValueToday:F2}",
+                    ROI = $"{(r.ROI * 100):F2}%",
+                    ROIColor = r.ROI >= 0 ? Color.FromArgb("#22C55E") : Color.FromArgb("#EF4444")
+                })
+                .ToList();
+
+            HistoryCollectionView.ItemsSource = historyItems;
         }
     }
 }

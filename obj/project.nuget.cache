@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "cHGLMAPw8vU=",
+  "dgSpecHash": "+rswYaK7vXE=",
   "success": true,
-  "projectFilePath": "C:\\Users\\cmito\\Desktop\\CryptoDCACalculator\\CryptoDCACalculator.csproj",
+  "projectFilePath": "C:\\Users\\cmito\\Desktop\\CryptoDCACalculator\\Crypto-DCA-Calculator-\\CryptoDCACalculator.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\cmito\\.nuget\\packages\\googlegson\\2.11.0.5\\googlegson.2.11.0.5.nupkg.sha512",
     "C:\\Users\\cmito\\.nuget\\packages\\microsoft.extensions.configuration\\9.0.0\\microsoft.extensions.configuration.9.0.0.nupkg.sha512",

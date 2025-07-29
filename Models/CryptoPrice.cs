@@ -3,12 +3,10 @@ using System;
 
 namespace CryptoDCACalculator.Models
 {
-    public class CryptoPrice
+    public class CryptoPrice 
     {
-        [PrimaryKey, AutoIncrement]
-        public int Id { get; set; }
         public string Coin { get; set; }
-        public DateTime Date { get; set; }
+        public DateTime Date { get; set; }  
         public decimal Price { get; set; }
     }
 } 
