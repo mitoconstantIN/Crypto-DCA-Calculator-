@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CryptoDCACalculator.MainPage"
+             Title="Crypto DCA Calculator">
+    <ScrollView>
+        <VerticalStackLayout Padding="30,0" Spacing="25">
+            <Label Text="Crypto DCA Calculator" FontSize="28" HorizontalOptions="Center" />
+
+            <Label Text="Select Cryptocurrencies:" />
+            <CollectionView x:Name="CryptoListView" SelectionMode="Multiple" HeightRequest="100">
+                <CollectionView.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>BTC</x:String>
+                        <x:String>ETH</x:String>
+                        <x:String>SOL</x:String>
+                        <x:String>XRP</x:String>
+                    </x:Array>
+                </CollectionView.ItemsSource>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Orientation="Horizontal" Padding="5">
+                            <Label Text="{Binding .}" FontSize="18" />
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+
+            <Label Text="Start Date:" />
+            <DatePicker x:Name="StartDatePicker" />
+
+            <Label Text="Monthly Investment Amount (USD):" />
+            <Entry x:Name="AmountEntry" Keyboard="Numeric" Placeholder="e.g. 100" />
+
+            <Label Text="Recurring Days of Month (comma separated, e.g. 1,15,28):" />
+            <Entry x:Name="DaysEntry" Placeholder="e.g. 15,20,25" />
+
+            <Button Text="Calculate" Clicked="OnCalculateClicked" />
+
+            <Label x:Name="ErrorLabel" TextColor="Red" IsVisible="False" />
+
+            <!-- Results Table Placeholder -->
+            <CollectionView x:Name="ResultsTable" IsVisible="False">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="5" ColumnDefinitions="*,*,*,*,*,*">
+                            <Label Text="{Binding Date}" Grid.Column="0"
+                                FontAttributes="{Binding Date, Converter={StaticResource TotalRowFontConverter}}" />
+                            <Label Text="{Binding Coin}" Grid.Column="1"
+                                FontAttributes="{Binding Coin, Converter={StaticResource TotalRowFontConverter}}" />
+                            <Label Text="{Binding InvestedAmount}" Grid.Column="2" />
+                            <Label Text="{Binding CryptoAmount}" Grid.Column="3" />
+                            <Label Text="{Binding ValueToday}" Grid.Column="4" />
+                            <Label Text="{Binding ROI}" Grid.Column="5" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
