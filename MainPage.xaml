@@ -141,17 +141,17 @@
                                Margin="0,5,0,0"/>
                     </StackLayout>
                     
-                    <!-- Tab Headers - Neon Navigation (NOW WITH 4 TABS) -->
+                    <!-- Tab Headers - Neon Navigation (5 TABS) -->
                     <Border BackgroundColor="#0A0A0F" 
                             Stroke="#7C3AED" StrokeThickness="1"
                             StrokeShape="RoundRectangle 10" Margin="15">
-                        <Grid x:Name="TabHeaders" ColumnDefinitions="*,*,*,*" HeightRequest="50">
+                        <Grid x:Name="TabHeaders" ColumnDefinitions="*,*,*,*,*" HeightRequest="50">
                             <Border Grid.Column="0" x:Name="OverviewTabBorder" 
                                     BackgroundColor="#7C3AED" 
                                     StrokeShape="RoundRectangle 8" Margin="5">
                                 <Button x:Name="OverviewTab" Text="📊 OVERVIEW" 
                                         BackgroundColor="Transparent" TextColor="#FFFFFF" 
-                                        FontSize="11" FontAttributes="Bold"
+                                        FontSize="10" FontAttributes="Bold"
                                         Clicked="OnOverviewTabClicked"/>
                             </Border>
                             
@@ -160,7 +160,7 @@
                                     StrokeShape="RoundRectangle 8" Margin="5">
                                 <Button x:Name="CoinsTab" Text="💎 ASSETS" 
                                         BackgroundColor="Transparent" TextColor="#666666" 
-                                        FontSize="11" FontAttributes="Bold"
+                                        FontSize="10" FontAttributes="Bold"
                                         Clicked="OnCoinsTabClicked"/>
                             </Border>
                             
@@ -169,18 +169,26 @@
                                     StrokeShape="RoundRectangle 8" Margin="5">
                                 <Button x:Name="HistoryTab" Text="📈 TIMELINE" 
                                         BackgroundColor="Transparent" TextColor="#666666" 
-                                        FontSize="11" FontAttributes="Bold"
+                                        FontSize="10" FontAttributes="Bold"
                                         Clicked="OnHistoryTabClicked"/>
                             </Border>
                             
-                            <!-- NEW TABLE TAB -->
                             <Border Grid.Column="3" x:Name="TableTabBorder" 
                                     BackgroundColor="Transparent" 
                                     StrokeShape="RoundRectangle 8" Margin="5">
                                 <Button x:Name="TableTab" Text="📋 TABLE" 
                                         BackgroundColor="Transparent" TextColor="#666666" 
-                                        FontSize="11" FontAttributes="Bold"
+                                        FontSize="10" FontAttributes="Bold"
                                         Clicked="OnTableTabClicked"/>
+                            </Border>
+                            
+                            <Border Grid.Column="4" x:Name="ChartTabBorder" 
+                                    BackgroundColor="Transparent" 
+                                    StrokeShape="RoundRectangle 8" Margin="5">
+                                <Button x:Name="ChartTab" Text="📊 CHART" 
+                                        BackgroundColor="Transparent" TextColor="#666666" 
+                                        FontSize="10" FontAttributes="Bold"
+                                        Clicked="OnChartTabClicked"/>
                             </Border>
                         </Grid>
                     </Border>
@@ -188,14 +196,13 @@
                     <!-- Tab Content -->
                     <StackLayout x:Name="TabContent" Padding="20">
                         
-                        <!-- Overview Tab Content - Matrix Style -->
+                        <!-- Overview Tab Content -->
                         <StackLayout x:Name="OverviewContent" IsVisible="True">
                             <Label Text="PORTFOLIO NEURAL NETWORK" 
                                    FontSize="16" FontAttributes="Bold" 
                                    TextColor="#00D4FF" HorizontalOptions="Center"
                                    Margin="0,0,0,20"/>
                             
-                            <!-- Main Portfolio Display - Hologram Effect -->
                             <Border BackgroundColor="#0F0F23" 
                                     Stroke="#00D4FF" StrokeThickness="2"
                                     StrokeShape="RoundRectangle 15" Padding="25" Margin="0,0,0,20">
@@ -215,7 +222,6 @@
                                 </StackLayout>
                             </Border>
 
-                            <!-- Stats Grid - Cyber Dashboard -->
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
                                 <Border Grid.Column="0" BackgroundColor="#16213E" 
                                         Stroke="#00D4FF" StrokeThickness="1"
@@ -244,7 +250,7 @@
                             </Grid>
                         </StackLayout>
 
-                        <!-- Coins Tab Content - Digital Assets -->
+                        <!-- Coins Tab Content -->
                         <StackLayout x:Name="CoinsContent" IsVisible="False">
                             <Label Text="💎 DIGITAL ASSET PORTFOLIO 💎" 
                                    FontSize="16" FontAttributes="Bold" 
@@ -282,7 +288,7 @@
                             </CollectionView>
                         </StackLayout>
 
-                        <!-- History Tab Content - Timeline Matrix -->
+                        <!-- History Tab Content -->
                         <StackLayout x:Name="HistoryContent" IsVisible="False">
                             <Label Text="📈 TEMPORAL INVESTMENT MATRIX 📈" 
                                    FontSize="16" FontAttributes="Bold" 
@@ -328,14 +334,13 @@
                             </CollectionView>
                         </StackLayout>
 
-                        <!-- NEW TABLE TAB CONTENT - Classic Table Format -->
+                        <!-- Table Tab Content -->
                         <StackLayout x:Name="TableContent" IsVisible="False">
                             <Label Text="📋 DCA INVESTMENT TABLE 📋" 
                                    FontSize="16" FontAttributes="Bold" 
                                    TextColor="#00D4FF" HorizontalOptions="Center"
                                    Margin="0,0,0,20"/>
                             
-                            <!-- Table Header -->
                             <Border BackgroundColor="#16213E" 
                                     Stroke="#00D4FF" StrokeThickness="2"
                                     StrokeShape="RoundRectangle 10" 
@@ -343,56 +348,34 @@
                                 <Border.Shadow>
                                     <Shadow Brush="#00D4FF" Opacity="0.4" Radius="10" Offset="0,0"/>
                                 </Border.Shadow>
-                                <Grid x:Name="TableHeaderGrid" ColumnDefinitions="80,80,80,80,80,80" ColumnSpacing="5">
-                                    <Label Grid.Column="0" Text="DATE" 
-                                           FontSize="10" FontAttributes="Bold" 
-                                           TextColor="#00D4FF" HorizontalOptions="Center"/>
-                                    <Label Grid.Column="1" Text="INVESTED" 
-                                           FontSize="10" FontAttributes="Bold" 
-                                           TextColor="#00D4FF" HorizontalOptions="Center"/>
-                                    <Label Grid.Column="2" x:Name="HeaderCoin1" Text="BTC" 
-                                           FontSize="10" FontAttributes="Bold" 
-                                           TextColor="#00D4FF" HorizontalOptions="Center"/>
-                                    <Label Grid.Column="3" x:Name="HeaderCoin2" Text="ETH" 
-                                           FontSize="10" FontAttributes="Bold" 
-                                           TextColor="#00D4FF" HorizontalOptions="Center"/>
-                                    <Label Grid.Column="4" Text="VALUE" 
-                                           FontSize="10" FontAttributes="Bold" 
-                                           TextColor="#00D4FF" HorizontalOptions="Center"/>
-                                    <Label Grid.Column="5" Text="ROI" 
-                                           FontSize="10" FontAttributes="Bold" 
-                                           TextColor="#00D4FF" HorizontalOptions="Center"/>
-                                </Grid>
+                                <StackLayout x:Name="TableHeaderContainer" Orientation="Horizontal">
+                                    <!-- Will be populated dynamically -->
+                                </StackLayout>
                             </Border>
                             
-                            <!-- Table Data -->
                             <CollectionView x:Name="TableCollectionView">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>
                                         <Border BackgroundColor="#0F0F23" 
                                                 Stroke="#7C3AED" StrokeThickness="1"
-                                                StrokeShape="RoundRectangle 8" 
-                                                Margin="0,0,0,2" Padding="10">
+                                                Padding="10" Margin="0,0,0,2">
                                             <Border.Shadow>
                                                 <Shadow Brush="#7C3AED" Opacity="0.2" Radius="5" Offset="0,1"/>
                                             </Border.Shadow>
-                                            <Grid ColumnDefinitions="80,80,80,80,80,80" ColumnSpacing="5">
+                                            <Grid ColumnDefinitions="80,80,*,80,60" ColumnSpacing="5">
                                                 <Label Grid.Column="0" Text="{Binding Date}" 
                                                        FontSize="9" TextColor="#FFFFFF" 
                                                        HorizontalOptions="Center" VerticalOptions="Center"/>
                                                 <Label Grid.Column="1" Text="{Binding InvestedAmount}" 
                                                        FontSize="9" TextColor="#FFFFFF" 
                                                        HorizontalOptions="Center" VerticalOptions="Center"/>
-                                                <Label Grid.Column="2" Text="{Binding Coin1Amount}" 
-                                                       FontSize="9" TextColor="#FFFFFF" 
-                                                       HorizontalOptions="Center" VerticalOptions="Center"/>
-                                                <Label Grid.Column="3" Text="{Binding Coin2Amount}" 
-                                                       FontSize="9" TextColor="#FFFFFF" 
-                                                       HorizontalOptions="Center" VerticalOptions="Center"/>
-                                                <Label Grid.Column="4" Text="{Binding ValueToday}" 
+                                                <Label Grid.Column="2" Text="{Binding CryptoData}" 
+                                                       FontSize="8" TextColor="#FFFFFF" 
+                                                       HorizontalOptions="Start" VerticalOptions="Center"/>
+                                                <Label Grid.Column="3" Text="{Binding ValueToday}" 
                                                        FontSize="9" TextColor="#7C3AED" FontAttributes="Bold"
                                                        HorizontalOptions="Center" VerticalOptions="Center"/>
-                                                <Label Grid.Column="5" Text="{Binding ROI}" 
+                                                <Label Grid.Column="4" Text="{Binding ROI}" 
                                                        FontSize="9" FontAttributes="Bold"
                                                        TextColor="{Binding ROIColor}"
                                                        HorizontalOptions="Center" VerticalOptions="Center"/>
@@ -401,6 +384,66 @@
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
+                        </StackLayout>
+
+                        <!-- Chart Tab Content - SIMPLIFIED -->
+                        <StackLayout x:Name="ChartContent" IsVisible="False">
+                            <Label Text="📊 PORTFOLIO EVOLUTION MATRIX 📊" 
+                                   FontSize="16" FontAttributes="Bold" 
+                                   TextColor="#00D4FF" HorizontalOptions="Center"
+                                   Margin="0,0,0,20"/>
+                            
+                            <Border BackgroundColor="#16213E" 
+                                    Stroke="#7C3AED" StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 10" 
+                                    Padding="15" Margin="0,0,0,15">
+                                <Border.Shadow>
+                                    <Shadow Brush="#7C3AED" Opacity="0.3" Radius="10" Offset="0,0"/>
+                                </Border.Shadow>
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                                    <Button Grid.Column="0" x:Name="PortfolioChartBtn" 
+                                            Text="⚡ PORTFOLIO VALUE" 
+                                            BackgroundColor="#7C3AED" TextColor="#FFFFFF" 
+                                            FontSize="12" FontAttributes="Bold"
+                                            Clicked="OnPortfolioChartClicked"/>
+                                    <Button Grid.Column="1" x:Name="ROIChartBtn" 
+                                            Text="💰 ROI EVOLUTION" 
+                                            BackgroundColor="Transparent" TextColor="#666666" 
+                                            FontSize="12" FontAttributes="Bold"
+                                            BorderColor="#666666" BorderWidth="1"
+                                            Clicked="OnROIChartClicked"/>
+                                </Grid>
+                            </Border>
+                            
+                            <!-- Real Chart Display with Grid -->
+                            <Border BackgroundColor="#0F0F23" 
+                                    Stroke="#00D4FF" StrokeThickness="2"
+                                    StrokeShape="RoundRectangle 15" 
+                                    HeightRequest="300" Margin="0,0,0,20">
+                                <Border.Shadow>
+                                    <Shadow Brush="#00D4FF" Opacity="0.4" Radius="20" Offset="0,0"/>
+                                </Border.Shadow>
+                                <Grid x:Name="ChartGrid" Padding="20">
+                                    <!-- Chart will be built here dynamically -->
+                                </Grid>
+                            </Border>
+                            
+                            <Border BackgroundColor="#1A1A2E" 
+                                    Stroke="#7C3AED" StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 10" 
+                                    Padding="15">
+                                <Border.Shadow>
+                                    <Shadow Brush="#7C3AED" Opacity="0.2" Radius="10" Offset="0,0"/>
+                                </Border.Shadow>
+                                <StackLayout x:Name="ChartLegend" Spacing="10">
+                                    <Label Text="📈 NEURAL NETWORK ANALYSIS" 
+                                           FontSize="12" FontAttributes="Bold" 
+                                           TextColor="#00D4FF" HorizontalOptions="Center"/>
+                                    <StackLayout x:Name="LegendItems" Spacing="5">
+                                        <!-- Legend items will be added dynamically -->
+                                    </StackLayout>
+                                </StackLayout>
+                            </Border>
                         </StackLayout>
 
                     </StackLayout>

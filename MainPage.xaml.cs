@@ -6,6 +6,7 @@ using Microsoft.Maui.Storage;
 using System.Threading.Tasks;
 using CryptoDCACalculator.Models;
 using CryptoDCACalculator.Services;
+using Microsoft.Maui.Graphics;
 
 namespace CryptoDCACalculator
 {
@@ -28,13 +29,12 @@ namespace CryptoDCACalculator
         public Color ROIColor { get; set; }
     }
 
-    // NEW: Table View Model for classic table format
-    public class TableRow
+    // Dynamic Table View Model for any number of cryptos
+    public class DynamicTableRow
     {
         public string Date { get; set; } = string.Empty;
         public string InvestedAmount { get; set; } = string.Empty;
-        public string Coin1Amount { get; set; } = string.Empty;
-        public string Coin2Amount { get; set; } = string.Empty;
+        public Dictionary<string, string> CryptoAmounts { get; set; } = new Dictionary<string, string>();
         public string ValueToday { get; set; } = string.Empty;
         public string ROI { get; set; } = string.Empty;
         public Color ROIColor { get; set; }
@@ -45,10 +45,14 @@ namespace CryptoDCACalculator
         private readonly DatabaseService _dbService;
         private bool _dbInitialized = false;
         
-        // Tab management - Updated for futuristic UI
+        // Tab management
         private Button _activeTab;
         private Border _activeTabBorder;
         private StackLayout _activeContent;
+
+        // Chart data
+        private List<DcaResultRow> _chartData = new List<DcaResultRow>();
+        private List<string> _chartCryptos = new List<string>();
 
         public MainPage()
         {
@@ -73,7 +77,7 @@ namespace CryptoDCACalculator
             _dbInitialized = true;
         }
 
-        #region Tab Management - Futuristic Style
+        #region Tab Management
 
         private void OnOverviewTabClicked(object sender, EventArgs e)
         {
@@ -90,20 +94,24 @@ namespace CryptoDCACalculator
             SwitchTab(HistoryTab, HistoryTabBorder, HistoryContent);
         }
 
-        // NEW: Table tab click handler
         private void OnTableTabClicked(object sender, EventArgs e)
         {
             SwitchTab(TableTab, TableTabBorder, TableContent);
         }
 
+        private void OnChartTabClicked(object sender, EventArgs e)
+        {
+            SwitchTab(ChartTab, ChartTabBorder, ChartContent);
+        }
+
         private void SwitchTab(Button newTab, Border newTabBorder, StackLayout newContent)
         {
-            // Deactivate current tab - Cyber style
+            // Deactivate current tab
             _activeTabBorder.BackgroundColor = Colors.Transparent;
             _activeTab.TextColor = Color.FromArgb("#666666");
             _activeContent.IsVisible = false;
 
-            // Activate new tab - Neon glow effect
+            // Activate new tab
             newTabBorder.BackgroundColor = Color.FromArgb("#7C3AED");
             newTab.TextColor = Colors.White;
             newContent.IsVisible = true;
@@ -112,6 +120,312 @@ namespace CryptoDCACalculator
             _activeTab = newTab;
             _activeTabBorder = newTabBorder;
             _activeContent = newContent;
+        }
+
+        #endregion
+
+        #region Chart Handlers
+
+        private void OnPortfolioChartClicked(object sender, EventArgs e)
+        {
+            PortfolioChartBtn.BackgroundColor = Color.FromArgb("#7C3AED");
+            PortfolioChartBtn.TextColor = Colors.White;
+            ROIChartBtn.BackgroundColor = Colors.Transparent;
+            ROIChartBtn.TextColor = Color.FromArgb("#666666");
+            
+            UpdateChartDisplay("PORTFOLIO");
+        }
+
+        private void OnROIChartClicked(object sender, EventArgs e)
+        {
+            ROIChartBtn.BackgroundColor = Color.FromArgb("#7C3AED");
+            ROIChartBtn.TextColor = Colors.White;
+            PortfolioChartBtn.BackgroundColor = Colors.Transparent;
+            PortfolioChartBtn.TextColor = Color.FromArgb("#666666");
+            
+            UpdateChartDisplay("ROI");
+        }
+
+        private void UpdateChartDisplay(string chartType)
+        {
+            if (chartType == "PORTFOLIO")
+            {
+                DrawSimplePortfolioChart();
+            }
+            else
+            {
+                DrawSimpleROIChart();
+            }
+        }
+
+        private void DrawSimplePortfolioChart()
+        {
+            ChartGrid.Children.Clear();
+            ChartGrid.RowDefinitions.Clear();
+            ChartGrid.ColumnDefinitions.Clear();
+
+            if (!_chartData.Any()) 
+            {
+                var noDataLabel = new Label
+                {
+                    Text = "📈 NO DATA - RUN CALCULATION FIRST 📈",
+                    FontSize = 16,
+                    FontAttributes = FontAttributes.Bold,
+                    TextColor = Color.FromArgb("#00D4FF"),
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center
+                };
+                ChartGrid.Children.Add(noDataLabel);
+                return;
+            }
+
+            // Group data by month
+            var monthlyData = _chartData
+                .GroupBy(r => new { r.Date.Year, r.Date.Month })
+                .OrderBy(g => g.Key.Year)
+                .ThenBy(g => g.Key.Month)
+                .Select(g => new
+                {
+                    Date = new DateTime(g.Key.Year, g.Key.Month, 1),
+                    TotalValue = g.Sum(r => r.ValueToday),
+                    TotalInvested = g.Sum(r => r.InvestedAmount)
+                })
+                .ToList();
+
+            if (monthlyData.Count < 2) return;
+
+            // Create grid with bars
+            var maxValue = Math.Max(monthlyData.Max(d => d.TotalValue), monthlyData.Max(d => d.TotalInvested));
+            var barCount = Math.Min(monthlyData.Count, 12); // Show max 12 bars
+            var recentData = monthlyData.TakeLast(barCount).ToList();
+
+            // Setup grid
+            for (int i = 0; i < barCount; i++)
+            {
+                ChartGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            }
+            ChartGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            ChartGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            // Draw bars
+            for (int i = 0; i < recentData.Count; i++)
+            {
+                var data = recentData[i];
+                
+                // Container for bars
+                var barContainer = new StackLayout
+                {
+                    Orientation = StackOrientation.Vertical,
+                    VerticalOptions = LayoutOptions.End,
+                    Spacing = 2,
+                    Margin = new Thickness(2)
+                };
+
+                // Current value bar (cyan)
+                var valueHeight = (double)(data.TotalValue / maxValue) * 200;
+                var valueBar = new BoxView
+                {
+                    Color = Color.FromArgb("#00D4FF"),
+                    HeightRequest = Math.Max(valueHeight, 5),
+                    WidthRequest = 15,
+                    HorizontalOptions = LayoutOptions.Center
+                };
+
+                // Invested bar (purple)
+                var investedHeight = (double)(data.TotalInvested / maxValue) * 200;
+                var investedBar = new BoxView
+                {
+                    Color = Color.FromArgb("#7C3AED"),
+                    HeightRequest = Math.Max(investedHeight, 5),
+                    WidthRequest = 10,
+                    HorizontalOptions = LayoutOptions.Center
+                };
+
+                // Stack bars side by side
+                var barsStack = new StackLayout
+                {
+                    Orientation = StackOrientation.Horizontal,
+                    HorizontalOptions = LayoutOptions.Center,
+                    Spacing = 2
+                };
+                barsStack.Children.Add(investedBar);
+                barsStack.Children.Add(valueBar);
+
+                barContainer.Children.Add(barsStack);
+
+                // Date label
+                var dateLabel = new Label
+                {
+                    Text = data.Date.ToString("MMM"),
+                    FontSize = 10,
+                    TextColor = Colors.White,
+                    HorizontalOptions = LayoutOptions.Center
+                };
+
+                Grid.SetColumn(barContainer, i);
+                Grid.SetRow(barContainer, 0);
+                ChartGrid.Children.Add(barContainer);
+
+                Grid.SetColumn(dateLabel, i);
+                Grid.SetRow(dateLabel, 1);
+                ChartGrid.Children.Add(dateLabel);
+            }
+
+            // Add legend at top
+            var legendStack = new StackLayout
+            {
+                Orientation = StackOrientation.Horizontal,
+                HorizontalOptions = LayoutOptions.Center,
+                Spacing = 20,
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+
+            var cyanLegend = new StackLayout
+            {
+                Orientation = StackOrientation.Horizontal,
+                Spacing = 5
+            };
+            cyanLegend.Children.Add(new BoxView { Color = Color.FromArgb("#00D4FF"), WidthRequest = 15, HeightRequest = 15 });
+            cyanLegend.Children.Add(new Label { Text = "Current Value", TextColor = Color.FromArgb("#00D4FF"), FontSize = 12 });
+
+            var purpleLegend = new StackLayout
+            {
+                Orientation = StackOrientation.Horizontal,
+                Spacing = 5
+            };
+            purpleLegend.Children.Add(new BoxView { Color = Color.FromArgb("#7C3AED"), WidthRequest = 15, HeightRequest = 15 });
+            purpleLegend.Children.Add(new Label { Text = "Invested", TextColor = Color.FromArgb("#7C3AED"), FontSize = 12 });
+
+            legendStack.Children.Add(purpleLegend);
+            legendStack.Children.Add(cyanLegend);
+
+            // Add legend spanning all columns
+            Grid.SetColumn(legendStack, 0);
+            Grid.SetColumnSpan(legendStack, barCount);
+            Grid.SetRow(legendStack, 0);
+            Grid.SetRowSpan(legendStack, 1);
+            ChartGrid.Children.Add(legendStack);
+        }
+
+        private void DrawSimpleROIChart()
+        {
+            ChartGrid.Children.Clear();
+            ChartGrid.RowDefinitions.Clear();
+            ChartGrid.ColumnDefinitions.Clear();
+
+            if (!_chartData.Any()) 
+            {
+                var noDataLabel = new Label
+                {
+                    Text = "📊 NO DATA - RUN CALCULATION FIRST 📊",
+                    FontSize = 16,
+                    FontAttributes = FontAttributes.Bold,
+                    TextColor = Color.FromArgb("#00D4FF"),
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center
+                };
+                ChartGrid.Children.Add(noDataLabel);
+                return;
+            }
+
+            // Calculate monthly ROI
+            var monthlyROI = _chartData
+                .GroupBy(r => new { r.Date.Year, r.Date.Month })
+                .OrderBy(g => g.Key.Year)
+                .ThenBy(g => g.Key.Month)
+                .Select(g =>
+                {
+                    var totalValue = g.Sum(r => r.ValueToday);
+                    var totalInvested = g.Sum(r => r.InvestedAmount);
+                    var roi = totalInvested > 0 ? ((totalValue - totalInvested) / totalInvested) * 100 : 0;
+                    return new
+                    {
+                        Date = new DateTime(g.Key.Year, g.Key.Month, 1),
+                        ROI = roi
+                    };
+                })
+                .ToList();
+
+            var barCount = Math.Min(monthlyROI.Count, 12);
+            var recentData = monthlyROI.TakeLast(barCount).ToList();
+
+            // Setup grid
+            for (int i = 0; i < barCount; i++)
+            {
+                ChartGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            }
+            ChartGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            ChartGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            var maxAbsROI = recentData.Max(d => Math.Abs((double)d.ROI));
+            if (maxAbsROI == 0) maxAbsROI = 10; // Prevent division by zero
+
+            // Draw ROI bars
+            for (int i = 0; i < recentData.Count; i++)
+            {
+                var data = recentData[i];
+                var roi = (double)data.ROI;
+                
+                var barHeight = Math.Abs(roi) / maxAbsROI * 200;
+                var barColor = roi >= 0 ? Color.FromArgb("#50C878") : Color.FromArgb("#FF6B6B");
+
+                var roiBar = new BoxView
+                {
+                    Color = barColor,
+                    HeightRequest = Math.Max(barHeight, 5),
+                    WidthRequest = 20,
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.End
+                };
+
+                // ROI value label
+                var roiLabel = new Label
+                {
+                    Text = $"{roi:F1}%",
+                    FontSize = 9,
+                    TextColor = barColor,
+                    HorizontalOptions = LayoutOptions.Center,
+                    FontAttributes = FontAttributes.Bold
+                };
+
+                var barStack = new StackLayout
+                {
+                    Children = { roiLabel, roiBar },
+                    VerticalOptions = LayoutOptions.End,
+                    Spacing = 2
+                };
+
+                // Date label
+                var dateLabel = new Label
+                {
+                    Text = data.Date.ToString("MMM"),
+                    FontSize = 10,
+                    TextColor = Colors.White,
+                    HorizontalOptions = LayoutOptions.Center
+                };
+
+                Grid.SetColumn(barStack, i);
+                Grid.SetRow(barStack, 0);
+                ChartGrid.Children.Add(barStack);
+
+                Grid.SetColumn(dateLabel, i);
+                Grid.SetRow(dateLabel, 1);
+                ChartGrid.Children.Add(dateLabel);
+            }
+
+            // Add zero line and legend
+            var zeroLine = new BoxView
+            {
+                Color = Colors.White,
+                HeightRequest = 1,
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Center
+            };
+
+            Grid.SetColumn(zeroLine, 0);
+            Grid.SetColumnSpan(zeroLine, barCount);
+            Grid.SetRow(zeroLine, 0);
+            ChartGrid.Children.Add(zeroLine);
         }
 
         #endregion
@@ -243,7 +557,8 @@ namespace CryptoDCACalculator
             UpdateOverviewTab(monthlyResults);
             UpdateCoinsTab(monthlyResults);
             UpdateHistoryTab(monthlyResults);
-            UpdateTableTab(monthlyResults, selectedCryptos); // NEW: Update table tab
+            UpdateTableTab(monthlyResults, selectedCryptos);
+            UpdateChartTab(monthlyResults, selectedCryptos);
 
             // Show results
             ResultsFrame.IsVisible = true;
@@ -258,18 +573,16 @@ namespace CryptoDCACalculator
             var totalPortfolioEur = totalCurrentValue * UsdToEur;
             var overallRoi = totalInvested > 0 ? ((totalCurrentValue - totalInvested) / totalInvested) * 100 : 0;
 
-            // Update portfolio summary - Futuristic style
             PortfolioValueLabel.Text = $"€{totalPortfolioEur:F2}";
             PortfolioROILabel.Text = $"{overallRoi:F2}%";
             
-            // Color coding for ROI - Cyber theme
             if (overallRoi >= 0)
             {
-                PortfolioROILabel.TextColor = Color.FromArgb("#00D4FF"); // Cyan for positive
+                PortfolioROILabel.TextColor = Color.FromArgb("#00D4FF");
             }
             else
             {
-                PortfolioROILabel.TextColor = Color.FromArgb("#FF6B6B"); // Red for negative
+                PortfolioROILabel.TextColor = Color.FromArgb("#FF6B6B");
             }
 
             TotalInvestedLabel.Text = $"${totalInvested:F0}";
@@ -310,24 +623,10 @@ namespace CryptoDCACalculator
             HistoryCollectionView.ItemsSource = historyItems;
         }
 
-        // NEW: Update Table Tab with classic table format
         private void UpdateTableTab(List<DcaResultRow> results, List<string> selectedCryptos)
         {
-            // Update dynamic column headers based on selected cryptos
-            if (selectedCryptos.Count >= 1)
-            {
-                HeaderCoin1.Text = selectedCryptos[0];
-            }
-            if (selectedCryptos.Count >= 2)
-            {
-                HeaderCoin2.Text = selectedCryptos[1];
-            }
-            else
-            {
-                HeaderCoin2.Text = "-";
-            }
+            CreateDynamicTableHeader(selectedCryptos);
 
-            // Group results by month for table display
             var monthlyGroups = results
                 .GroupBy(r => new { r.Date.Year, r.Date.Month })
                 .OrderBy(g => g.Key.Year)
@@ -339,18 +638,18 @@ namespace CryptoDCACalculator
                     var totalValue = monthResults.Sum(r => r.ValueToday);
                     var overallROI = totalInvested > 0 ? (totalValue - totalInvested) / totalInvested : 0;
 
-                    // Get crypto amounts for each selected coin
-                    var coin1Amount = selectedCryptos.Count >= 1 ? 
-                        monthResults.Where(r => r.Coin == selectedCryptos[0]).Sum(r => r.CryptoAmount) : 0;
-                    var coin2Amount = selectedCryptos.Count >= 2 ? 
-                        monthResults.Where(r => r.Coin == selectedCryptos[1]).Sum(r => r.CryptoAmount) : 0;
+                    var cryptoAmounts = new Dictionary<string, string>();
+                    foreach (var crypto in selectedCryptos)
+                    {
+                        var amount = monthResults.Where(r => r.Coin == crypto).Sum(r => r.CryptoAmount);
+                        cryptoAmounts[crypto] = amount > 0 ? $"{amount:F4}" : "-";
+                    }
 
-                    return new TableRow
+                    return new DynamicTableRow
                     {
                         Date = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMM yyyy"),
                         InvestedAmount = $"${totalInvested:F0}",
-                        Coin1Amount = coin1Amount > 0 ? $"{coin1Amount:F4}" : "-",
-                        Coin2Amount = coin2Amount > 0 ? $"{coin2Amount:F4}" : "-",
+                        CryptoAmounts = cryptoAmounts,
                         ValueToday = $"${totalValue:F2}",
                         ROI = $"{(overallROI * 100):F1}%",
                         ROIColor = overallROI >= 0 ? Color.FromArgb("#00D4FF") : Color.FromArgb("#FF6B6B")
@@ -358,7 +657,111 @@ namespace CryptoDCACalculator
                 })
                 .ToList();
 
-            TableCollectionView.ItemsSource = monthlyGroups;
+            var displayData = monthlyGroups.Select(row => new
+            {
+                Date = row.Date,
+                InvestedAmount = row.InvestedAmount,
+                CryptoData = string.Join(" | ", selectedCryptos.Select(crypto => 
+                    $"{crypto}: {(row.CryptoAmounts.ContainsKey(crypto) ? row.CryptoAmounts[crypto] : "-")}")),
+                ValueToday = row.ValueToday,
+                ROI = row.ROI,
+                ROIColor = row.ROIColor
+            }).ToList();
+
+            TableCollectionView.ItemsSource = displayData;
+        }
+
+        private void CreateDynamicTableHeader(List<string> selectedCryptos)
+        {
+            TableHeaderContainer.Children.Clear();
+            
+            var totalColumns = 4 + selectedCryptos.Count;
+            var columnWidth = Math.Max(60, 400 / totalColumns);
+
+            TableHeaderContainer.Children.Add(new Label
+            {
+                Text = "DATE", FontSize = 10, FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#00D4FF"), HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center, WidthRequest = columnWidth
+            });
+
+            TableHeaderContainer.Children.Add(new Label
+            {
+                Text = "INVESTED", FontSize = 10, FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#00D4FF"), HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center, WidthRequest = columnWidth
+            });
+
+            foreach (var crypto in selectedCryptos)
+            {
+                TableHeaderContainer.Children.Add(new Label
+                {
+                    Text = crypto, FontSize = 10, FontAttributes = FontAttributes.Bold,
+                    TextColor = Color.FromArgb("#00D4FF"), HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center, WidthRequest = columnWidth
+                });
+            }
+
+            TableHeaderContainer.Children.Add(new Label
+            {
+                Text = "VALUE", FontSize = 10, FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#00D4FF"), HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center, WidthRequest = columnWidth
+            });
+
+            TableHeaderContainer.Children.Add(new Label
+            {
+                Text = "ROI", FontSize = 10, FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#00D4FF"), HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center, WidthRequest = columnWidth
+            });
+        }
+
+        private void UpdateChartTab(List<DcaResultRow> results, List<string> selectedCryptos)
+        {
+            _chartData = results;
+            _chartCryptos = selectedCryptos;
+            
+            UpdateChartLegend(selectedCryptos);
+            UpdateChartDisplay("PORTFOLIO");
+        }
+
+        private void UpdateChartLegend(List<string> selectedCryptos)
+        {
+            LegendItems.Children.Clear();
+            
+            var colors = new[] { "#00D4FF", "#7C3AED", "#FF6B6B", "#50C878", "#FFD700", "#FF8C00" };
+            
+            for (int i = 0; i < selectedCryptos.Count; i++)
+            {
+                var legendItem = new StackLayout
+                {
+                    Orientation = StackOrientation.Horizontal,
+                    Spacing = 10,
+                    HorizontalOptions = LayoutOptions.Center
+                };
+                
+                var colorBox = new BoxView
+                {
+                    Color = Color.FromArgb(colors[i % colors.Length]),
+                    WidthRequest = 15,
+                    HeightRequest = 15,
+                    VerticalOptions = LayoutOptions.Center
+                };
+                
+                var label = new Label
+                {
+                    Text = $"◊ {selectedCryptos[i]}",
+                    FontSize = 12,
+                    TextColor = Color.FromArgb(colors[i % colors.Length]),
+                    FontAttributes = FontAttributes.Bold,
+                    VerticalOptions = LayoutOptions.Center
+                };
+                
+                legendItem.Children.Add(colorBox);
+                legendItem.Children.Add(label);
+                LegendItems.Children.Add(legendItem);
+            }
         }
     }
 }
