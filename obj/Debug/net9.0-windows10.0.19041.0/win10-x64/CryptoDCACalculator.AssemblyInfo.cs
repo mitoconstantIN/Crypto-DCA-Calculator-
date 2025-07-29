@@ -17,7 +17,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CryptoDCACalculator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+4e4edc642fbfe0f4578ef543df582950545be6bf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+48948e68cd35050502d5796d3665b30df00defda")]
 [assembly: System.Reflection.AssemblyProductAttribute("CryptoDCACalculator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CryptoDCACalculator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -28,6 +28,18 @@ namespace CryptoDCACalculator
         public Color ROIColor { get; set; }
     }
 
+    // NEW: Table View Model for classic table format
+    public class TableRow
+    {
+        public string Date { get; set; } = string.Empty;
+        public string InvestedAmount { get; set; } = string.Empty;
+        public string Coin1Amount { get; set; } = string.Empty;
+        public string Coin2Amount { get; set; } = string.Empty;
+        public string ValueToday { get; set; } = string.Empty;
+        public string ROI { get; set; } = string.Empty;
+        public Color ROIColor { get; set; }
+    }
+
     public partial class MainPage : ContentPage
     {
         private readonly DatabaseService _dbService;
@@ -76,6 +88,12 @@ namespace CryptoDCACalculator
         private void OnHistoryTabClicked(object sender, EventArgs e)
         {
             SwitchTab(HistoryTab, HistoryTabBorder, HistoryContent);
+        }
+
+        // NEW: Table tab click handler
+        private void OnTableTabClicked(object sender, EventArgs e)
+        {
+            SwitchTab(TableTab, TableTabBorder, TableContent);
         }
 
         private void SwitchTab(Button newTab, Border newTabBorder, StackLayout newContent)
@@ -225,6 +243,7 @@ namespace CryptoDCACalculator
             UpdateOverviewTab(monthlyResults);
             UpdateCoinsTab(monthlyResults);
             UpdateHistoryTab(monthlyResults);
+            UpdateTableTab(monthlyResults, selectedCryptos); // NEW: Update table tab
 
             // Show results
             ResultsFrame.IsVisible = true;
@@ -289,6 +308,57 @@ namespace CryptoDCACalculator
                 .ToList();
 
             HistoryCollectionView.ItemsSource = historyItems;
+        }
+
+        // NEW: Update Table Tab with classic table format
+        private void UpdateTableTab(List<DcaResultRow> results, List<string> selectedCryptos)
+        {
+            // Update dynamic column headers based on selected cryptos
+            if (selectedCryptos.Count >= 1)
+            {
+                HeaderCoin1.Text = selectedCryptos[0];
+            }
+            if (selectedCryptos.Count >= 2)
+            {
+                HeaderCoin2.Text = selectedCryptos[1];
+            }
+            else
+            {
+                HeaderCoin2.Text = "-";
+            }
+
+            // Group results by month for table display
+            var monthlyGroups = results
+                .GroupBy(r => new { r.Date.Year, r.Date.Month })
+                .OrderBy(g => g.Key.Year)
+                .ThenBy(g => g.Key.Month)
+                .Select(g =>
+                {
+                    var monthResults = g.ToList();
+                    var totalInvested = monthResults.Sum(r => r.InvestedAmount);
+                    var totalValue = monthResults.Sum(r => r.ValueToday);
+                    var overallROI = totalInvested > 0 ? (totalValue - totalInvested) / totalInvested : 0;
+
+                    // Get crypto amounts for each selected coin
+                    var coin1Amount = selectedCryptos.Count >= 1 ? 
+                        monthResults.Where(r => r.Coin == selectedCryptos[0]).Sum(r => r.CryptoAmount) : 0;
+                    var coin2Amount = selectedCryptos.Count >= 2 ? 
+                        monthResults.Where(r => r.Coin == selectedCryptos[1]).Sum(r => r.CryptoAmount) : 0;
+
+                    return new TableRow
+                    {
+                        Date = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMM yyyy"),
+                        InvestedAmount = $"${totalInvested:F0}",
+                        Coin1Amount = coin1Amount > 0 ? $"{coin1Amount:F4}" : "-",
+                        Coin2Amount = coin2Amount > 0 ? $"{coin2Amount:F4}" : "-",
+                        ValueToday = $"${totalValue:F2}",
+                        ROI = $"{(overallROI * 100):F1}%",
+                        ROIColor = overallROI >= 0 ? Color.FromArgb("#00D4FF") : Color.FromArgb("#FF6B6B")
+                    };
+                })
+                .ToList();
+
+            TableCollectionView.ItemsSource = monthlyGroups;
         }
     }
 }

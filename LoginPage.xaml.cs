@@ -40,7 +40,7 @@ namespace CryptoDCACalculator
                 ErrorBorder.IsVisible = true;
                 
                 // Reset button
-                LoginButton.Text = "⚡ INITIATE ACCESS PROTOCOL ⚡";
+                LoginButton.Text = "Login";
                 LoginButton.IsEnabled = true;
                 
                 // Clear password field for security
