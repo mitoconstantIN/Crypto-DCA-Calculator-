@@ -1,0 +1,4 @@
+C:\Users\cmito\Desktop\CryptoDCACalculator\Crypto-DCA-Calculator-\bin\Release\net9.0-android\publish\com.companyname.cryptodcacalculator-Signed.aab
+C:\Users\cmito\Desktop\CryptoDCACalculator\Crypto-DCA-Calculator-\bin\Release\net9.0-android\publish\com.companyname.cryptodcacalculator.aab
+C:\Users\cmito\Desktop\CryptoDCACalculator\Crypto-DCA-Calculator-\bin\Release\net9.0-android\publish\com.companyname.cryptodcacalculator-Signed.apk
+C:\Users\cmito\Desktop\CryptoDCACalculator\Crypto-DCA-Calculator-\bin\Release\net9.0-android\publish\_Microsoft.Android.Resource.Designer.dll

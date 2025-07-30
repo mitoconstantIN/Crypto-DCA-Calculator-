@@ -436,7 +436,7 @@
                                     <Shadow Brush="#7C3AED" Opacity="0.2" Radius="10" Offset="0,0"/>
                                 </Border.Shadow>
                                 <StackLayout x:Name="ChartLegend" Spacing="10">
-                                    <Label Text="📈 NEURAL NETWORK ANALYSIS" 
+                                    <Label Text="📈 Legend Items" 
                                            FontSize="12" FontAttributes="Bold" 
                                            TextColor="#00D4FF" HorizontalOptions="Center"/>
                                     <StackLayout x:Name="LegendItems" Spacing="5">

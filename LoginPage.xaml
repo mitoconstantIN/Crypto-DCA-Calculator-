@@ -117,8 +117,21 @@
                 <Border.Shadow>
                     <Shadow Brush="#7C3AED" Opacity="0.2" Radius="15" Offset="0,0"/>
                 </Border.Shadow>
+                  <StackLayout>
+                        <Label Text="⚠️ SECURITY NOTICE ⚠️" 
+                            TextColor="#7C3AED" 
+                            FontSize="16" 
+                            FontAttributes="Bold"
+                            HorizontalOptions="Center"
+                            Margin="0,0,0,10"/>
+                        
+                        <Label Text="For succesful Login use this credentials: username: admin, password: admin" 
+                            TextColor="#CCCCCC" 
+                            FontSize="12" 
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="Center"/>
+                    </StackLayout>
             </Border>
-
         </StackLayout>
     </ScrollView>
 </ContentPage>
